@@ -137,7 +137,7 @@ module Transitions
       when Proc
         callback_names
       when Symbol
-        ->(record, *args) { record.method(callback_names).arity == 0 ? record.send(callback_names) : record.send(callback_names, *args) }
+        ->(record, *args, **kwargs) { record.method(callback_names).arity == 0 ? record.send(callback_names) : record.send(callback_names, *args, **kwargs) }
       end
     end
 
