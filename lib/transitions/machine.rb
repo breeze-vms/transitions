@@ -75,7 +75,13 @@ module Transitions
     end
 
     def handle_event_success_callback(record, event, *args, **kwargs)
-      @events[event].success.call(record, *args, **kwargs) if @events[event].success
+      # Custom patch to the Receptionist fork of the Transitions gem by Glen Crawford (reinteractive).
+      # Wraps the success callback of a state machine event in a block for a custom ActiveModel callback named after
+      # the event, which can be used to broadcast Pub/Sub events via the Broadcastable module of receptful_server, e.g.
+      # after_check_in, after_approve, etc.
+      record.run_callbacks event do
+        @events[event].success.call(record, *args, **kwargs) if @events[event].success
+      end
     end
 
     def handle_event_failed_callback(record, event)
