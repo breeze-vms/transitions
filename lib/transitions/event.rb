@@ -28,6 +28,8 @@ module Transitions
           send("can_#{name}?", *args, **kwargs) &&
             machine.events[event].can_execute_transition_from_state?(current_state, self, *args, **kwargs)
         end
+
+        machine.klass.define_model_callbacks name, only: [:before, :after]
       end
       update(options, &block)
     end
