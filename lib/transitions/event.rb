@@ -33,7 +33,7 @@ module Transitions
     end
 
     def fire(obj, to_state = nil, *args, **kwargs)
-      transitions = @transitions.select { |t| t.from == obj.current_state }
+      transitions = @transitions.select { |t| t.from == obj.current_state || t.from == :ANY }
       fail InvalidTransition, error_message_for_invalid_transitions(obj) if transitions.size == 0
 
       next_state = nil
