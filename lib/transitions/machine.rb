@@ -31,10 +31,10 @@ module Transitions
       handle_state_exit_callback record
       if new_state = transition_to_new_state(record, event, *args, **kwargs)
         record.run_callbacks(event) do
-          handle_state_enter_callback record, new_state
-          handle_event_fired_callback record, new_state, event
+          handle_state_enter_callback(record, new_state)
+          handle_event_fired_callback(record, new_state, event)
           record.update_current_state(new_state, persist)
-          handle_event_success_callback record, event
+          handle_event_success_callback(record, event, *args, **kwargs)
         end
 
         return true
