@@ -65,7 +65,7 @@ module Transitions
     end
 
     def from?(value)
-      @from == value
+      @from == value || @from == :ANY
     end
 
     private

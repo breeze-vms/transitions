@@ -28,12 +28,14 @@ module Transitions
           send("can_#{name}?", *args, **kwargs) &&
             machine.events[event].can_execute_transition_from_state?(current_state, self, *args, **kwargs)
         end
+
+        machine.klass.define_model_callbacks name, only: [:before, :after]
       end
       update(options, &block)
     end
 
     def fire(obj, to_state = nil, *args, **kwargs)
-      transitions = @transitions.select { |t| t.from == obj.current_state }
+      transitions = @transitions.select { |t| t.from == obj.current_state || t.from == :ANY }
       fail InvalidTransition, error_message_for_invalid_transitions(obj) if transitions.size == 0
 
       next_state = nil
@@ -129,15 +131,15 @@ module Transitions
     def build_success_callback(callback_names)
       case callback_names
       when Array
-        lambda do |record|
+        lambda do |record, *args|
           callback_names.each do |callback|
-            build_success_callback(callback).call(record)
+            build_success_callback(callback).call(record, *args)
           end
         end
       when Proc
         callback_names
       when Symbol
-        ->(record) { record.send(callback_names) }
+        ->(record, *args, **kwargs) { record.method(callback_names).arity == 0 ? record.send(callback_names) : record.send(callback_names, *args, **kwargs) }
       end
     end
 
